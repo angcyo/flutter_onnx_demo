@@ -35,6 +35,15 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # https://pub.dev/packages/image
+  image: ^4.9.1
+
+  # https://pub.dev/packages/onnx_runtime_dart
+  onnx_runtime_dart: ^0.10.3
+
+  # https://pub.dev/packages/betto_onnxrt
+  betto_onnxrt: ^0.1.0-dev.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
