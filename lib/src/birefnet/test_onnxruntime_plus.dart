@@ -157,3 +157,10 @@ Future<Uint8List?> testOnnxruntimePlusMain() async {
   //return decodeImageFromList(pngBytes);
   return pngBytes;
 }
+
+/*
+import 'dart:typed_data';
+
+Future<Uint8List?> testOnnxruntimePlusMain() async {
+  return null;
+}*/

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_onnx_demo/src/birefnet/test_dort.dart';
 import 'package:flutter_onnx_demo/src/birefnet/test_flutter_onnxruntime.dart';
 import 'package:flutter_onnx_demo/src/birefnet/test_onnxruntime_plus.dart';
 import 'package:flutter_onnx_demo/src/birefnet/test_onnxruntime_v2.dart';
@@ -150,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: const Text("ORT-Plus"),
           ),
-          /*FloatingActionButton(
+          FloatingActionButton(
             onPressed: () {
               //test
               testOnnxruntimeV2Main().then((bytes) {
@@ -160,7 +161,18 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             },
             child: const Text("ORT-V2"),
-          ),*/
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              //test
+              testDortMain().then((bytes) {
+                //_resultImage = image;
+                _resultImageBytes = bytes;
+                setState(() {});
+              });
+            },
+            child: const Text("ORT-Dort"),
+          ),
         ],
       ),
     );
