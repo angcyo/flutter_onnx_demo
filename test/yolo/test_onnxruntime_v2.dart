@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_onnx_demo/src/birefnet/birefnet_helper.dart';
+import 'package:flutter_onnx_demo/src/yolo/yolo_helper.dart';
 import 'package:image/image.dart' as img;
 import 'package:onnxruntime_v2/onnxruntime_v2.dart';
 
@@ -18,9 +19,10 @@ void main() async {
   //模型输入大小
   final inputSize = 1024;
   //final modelPath = r"E:\dnn\BiRefNet_lite-ONNX\model_fp16.onnx";
-  final modelPath = r"E:\dnn\BEN2-ONNX\model_fp16.onnx";
+  final modelPath = r"E:\dnn\hispark-modelzoo-yolov8s-obb\yolov8s-obb.onnx";
   //final inputImagePath = r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png";
-  final inputImagePath = r"E:\temp\export_1024x1024.png";
+  //final inputImagePath = r"E:\temp\export_1024x1024.png";
+  final inputImagePath = r"test/.output/output_1786522445634.png";
   final modelBytes = File(modelPath).readAsBytesSync();
   final sessionOptions = OrtSessionOptions();
   // 🚀 NEW: Automatically use GPU acceleration if available!
@@ -79,7 +81,7 @@ void main() async {
 
   final shape = [1, 3, inputSize, inputSize];
   final inputOrt = OrtValueTensor.createTensorWithDataList(inputData, shape);
-  //input_image
+  //input_image / images
   final inputs = {session.inputNames.first: inputOrt};
   final runOptions = OrtRunOptions();
   final outputs = await session.runAsync(runOptions, inputs);
@@ -98,7 +100,7 @@ void main() async {
     throw Exception('BiRefNet 输出为空');
   }
   //print(out[model.outputNames.first]!.asFloatList());
-  //[output_image]
+  //[output_image] / [output0]
   print(session.outputNames);
 
   //输出的是前景/背景的置信度 logits
@@ -117,29 +119,23 @@ void main() async {
 
   print('Output type: ${outputValue.runtimeType}');
 
-  // --------------------------------------------------
-  // 10. 转换 output
-  // --------------------------------------------------
-  final logits = BiRefNetHelper.extractOutput(outputValue, inputSize);
-  print('Output values: ${logits.length}');
-  final mask = BiRefNetHelper.sigmoid(logits, inputSize);
-  // --------------------------------------------------
-  // 12. Resize mask 到原图尺寸
-  // --------------------------------------------------
-  final maskImage = BiRefNetHelper.maskToImage(mask, inputSize, inputSize);
-  final resizedMask = BiRefNetHelper.resizeImage(
-    maskImage,
-    originalWidth,
-    originalHeight,
-  );
+  final scale =
+      inputSize /
+      (originalWidth > originalHeight ? originalWidth : originalHeight);
 
-  // --------------------------------------------------
-  // 13. 应用 Alpha
-  // --------------------------------------------------
-  final result = BiRefNetHelper.applyMask(original, resizedMask);
-  final outputPath = 'test/.output/output_$timestamp.png';
-  await img.encodePngFile(outputPath, result); // Save the result as PNG
-  print('Save result to: $outputPath');
+  final padX = (inputSize - resized.width) / 2;
+  final padY = (inputSize - resized.height) / 2;
+  final result = YoloHelper.decodeObb(
+    outputValue,
+    padX: padX,
+    padY: padY,
+    scale: scale,
+  );
+  print(
+    result
+        .map((e) => "${e.cx},${e.cy},${e.width},${e.height},${e.angle}")
+        .join(","),
+  );
 
   outputs?.forEach((element) {
     //print(element?.value);
