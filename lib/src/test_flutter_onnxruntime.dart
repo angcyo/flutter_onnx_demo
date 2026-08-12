@@ -1,11 +1,13 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_onnx_demo/src/birefnet_helper.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:image/image.dart' as img;
+
+import 'basics.dart';
 
 ///
 /// @author <a href="mailto:angcyo@126.com">angcyo</a>
@@ -28,11 +30,18 @@ import 'package:image/image.dart' as img;
 Future<Uint8List?> testFlutterOnnxruntimeMain() async {
   final inputSize = 1024;
   final shape = [1, 3, inputSize, inputSize];
-  final modelPath = r"E:\dnn\BiRefNet_lite-ONNX\model_fp16.onnx";
-  final inputImagePath = r"E:\temp\export_1024x1024.png";
+  final modelPath = isMobile
+      ? "assets/model_fp16.onnx"
+      : r"E:\dnn\BiRefNet_lite-ONNX\model_fp16.onnx";
+  final inputImagePath = isMobile
+      ? "assets/input.png"
+      : r"E:\temp\export_1024x1024.png";
   //final inputImagePath = r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png";
 
-  final original = img.decodeImage(File(inputImagePath).readAsBytesSync());
+  final inputImageBytes = isMobile
+      ? await readAssetsBytes(inputImagePath)
+      : File(inputImagePath).readAsBytesSync();
+  final original = img.decodeImage(inputImageBytes);
   if (original == null) {
     throw Exception('无法解析图片');
   }
@@ -43,8 +52,9 @@ Future<Uint8List?> testFlutterOnnxruntimeMain() async {
 
   // create inference session
   final ort = OnnxRuntime();
-  final session = await ort.createSession(modelPath);
-  //final session = await ort.createSessionFromAsset('assets/models/addition_model.onnx');
+  final session = isMobile
+      ? await ort.createSessionFromAsset(modelPath)
+      : await ort.createSession(modelPath);
 
   // specify input with data and shape
   final inputs = {
