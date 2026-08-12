@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_onnx_demo/src/birefnet/birefnet_helper.dart';
 import 'package:image/image.dart' as img;
-import 'package:onnxruntime_v2/onnxruntime_v2.dart';
+import 'package:onnxruntime_plus/onnxruntime_plus.dart';
 
 ///
 /// @author <a href="mailto:angcyo@126.com">angcyo</a>
@@ -22,9 +22,6 @@ void main() async {
   final inputImagePath = r"E:\temp\export_1024x1024.png";
   final modelBytes = File(modelPath).readAsBytesSync();
   final sessionOptions = OrtSessionOptions();
-  // 🚀 NEW: Automatically use GPU acceleration if available!
-  // This will try GPU providers first, then fall back to CPU
-  sessionOptions.appendDefaultProviders();
   final session = OrtSession.fromBuffer(modelBytes, sessionOptions);
 
   final bytes = File(inputImagePath).readAsBytesSync();

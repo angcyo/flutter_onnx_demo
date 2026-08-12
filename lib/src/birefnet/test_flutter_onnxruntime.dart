@@ -3,11 +3,11 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_onnx_demo/src/birefnet_helper.dart';
+import 'package:flutter_onnx_demo/src/birefnet/birefnet_helper.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:image/image.dart' as img;
 
-import 'basics.dart';
+import '../basics.dart';
 
 ///
 /// @author <a href="mailto:angcyo@126.com">angcyo</a>

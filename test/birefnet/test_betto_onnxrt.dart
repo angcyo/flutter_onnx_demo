@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:betto_onnxrt/betto_onnxrt.dart';
-import 'package:flutter_onnx_demo/src/birefnet_helper.dart';
+import 'package:flutter_onnx_demo/src/birefnet/birefnet_helper.dart';
 import 'package:image/image.dart' as img;
 
 ///

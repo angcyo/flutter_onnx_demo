@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_onnx_demo/src/birefnet_helper.dart';
+import 'package:flutter_onnx_demo/src/birefnet/birefnet_helper.dart';
 import 'package:image/image.dart' as img;
 import 'package:onnx_runtime_dart/onnx_runtime_dart.dart';
 import 'package:onnx_runtime_dart/onnx_runtime_dart_io.dart';

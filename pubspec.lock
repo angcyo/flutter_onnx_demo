@@ -264,8 +264,16 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.10.3"
-  onnxruntime_v2:
+  onnxruntime_plus:
     dependency: "direct main"
+    description:
+      name: onnxruntime_plus
+      sha256: "05323f4f72c701416deba8db94f5e576f6853ca6f8d97d628ed9190eee6d77d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
+  onnxruntime_v2:
+    dependency: "direct dev"
     description:
       name: onnxruntime_v2
       sha256: a3a1f7baf40c6a77b4d359489643232414a4ee2e934d865dd7d30b758abaeef7

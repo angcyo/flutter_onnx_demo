@@ -2,7 +2,9 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_onnx_demo/src/test_flutter_onnxruntime.dart';
+import 'package:flutter_onnx_demo/src/birefnet/test_flutter_onnxruntime.dart';
+import 'package:flutter_onnx_demo/src/birefnet/test_onnxruntime_plus.dart';
+import 'package:flutter_onnx_demo/src/birefnet/test_onnxruntime_v2.dart';
 
 void main() {
   runApp(const MyApp());
@@ -72,13 +74,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
-
-    //test
-    testFlutterOnnxruntimeMain().then((bytes) {
-      //_resultImage = image;
-      _resultImageBytes = bytes;
-      setState(() {});
-    });
   }
 
   @override
@@ -129,10 +124,44 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             : Image(image: MemoryImage(_resultImageBytes!)),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        spacing: 10,
+        children: <Widget>[
+          FloatingActionButton(
+            onPressed: () {
+              //test
+              testFlutterOnnxruntimeMain().then((bytes) {
+                //_resultImage = image;
+                _resultImageBytes = bytes;
+                setState(() {});
+              });
+            },
+            child: const Text("ORT-Flutter"),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              //test
+              testOnnxruntimePlusMain().then((bytes) {
+                //_resultImage = image;
+                _resultImageBytes = bytes;
+                setState(() {});
+              });
+            },
+            child: const Text("ORT-Plus"),
+          ),
+          /*FloatingActionButton(
+            onPressed: () {
+              //test
+              testOnnxruntimeV2Main().then((bytes) {
+                //_resultImage = image;
+                _resultImageBytes = bytes;
+                setState(() {});
+              });
+            },
+            child: const Text("ORT-V2"),
+          ),*/
+        ],
       ),
     );
   }
