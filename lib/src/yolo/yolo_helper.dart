@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:image/image.dart' as img;
+
 ///
 /// @author <a href="mailto:angcyo@126.com">angcyo</a>
 /// @date 2026/08/12
@@ -9,11 +11,72 @@ class YoloHelper {
   YoloHelper._();
 
   /// YOLOv8n-OBB 官方 DOTA 模型有 15 类
-  static const int numClasses = 20;
+  static const int numClasses = 15;
 
   static const double confThreshold = 0.25;
 
   static const double iouThreshold = 0.45;
+
+  //MARK: input
+
+  /// 预处理图像
+  static PreprocessResult preprocessImage(img.Image image, int inputSize) {
+    final originalWidth = image.width;
+    final originalHeight = image.height;
+
+    final scale =
+        inputSize /
+        (originalWidth > originalHeight ? originalWidth : originalHeight);
+
+    final resizedWidth = (originalWidth * scale).round();
+    final resizedHeight = (originalHeight * scale).round();
+
+    final resized = img.copyResize(
+      image,
+      width: resizedWidth,
+      height: resizedHeight,
+      interpolation: img.Interpolation.linear,
+    );
+
+    final canvas = img.Image(width: inputSize, height: inputSize);
+
+    // YOLO letterbox 默认填充 114
+    img.fill(canvas, color: img.ColorRgb8(114, 114, 114));
+
+    final padX = (inputSize - resizedWidth) / 2;
+    final padY = (inputSize - resizedHeight) / 2;
+
+    img.compositeImage(canvas, resized, dstX: padX.round(), dstY: padY.round());
+
+    final area = inputSize * inputSize;
+
+    final output = Float32List(3 * area);
+
+    for (int y = 0; y < inputSize; y++) {
+      for (int x = 0; x < inputSize; x++) {
+        final pixel = canvas.getPixel(x, y);
+
+        final index = y * inputSize + x;
+
+        output[index] = pixel.r / 255.0;
+
+        output[area + index] = pixel.g / 255.0;
+
+        output[area * 2 + index] = pixel.b / 255.0;
+      }
+    }
+
+    return PreprocessResult(
+      input: output,
+      scale: scale,
+      padX: padX,
+      padY: padY,
+      originalWidth: originalWidth,
+      originalHeight: originalHeight,
+    );
+  }
+
+  //MARK: output
 
   /// 解码YOLOv8的输出数据
   /// 旋转目标检测（Oriented Object Detection / OBB）。
@@ -230,6 +293,26 @@ class YoloHelper {
 
     return intersection / union;
   }
+}
+
+class PreprocessResult {
+  final Float32List input;
+
+  final double scale;
+  final double padX;
+  final double padY;
+
+  final int originalWidth;
+  final int originalHeight;
+
+  PreprocessResult({
+    required this.input,
+    required this.scale,
+    required this.padX,
+    required this.padY,
+    required this.originalWidth,
+    required this.originalHeight,
+  });
 }
 
 class RotatedObject {

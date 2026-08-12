@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter_onnx_demo/src/birefnet/birefnet_helper.dart';
 import 'package:flutter_onnx_demo/src/yolo/yolo_helper.dart';
 import 'package:image/image.dart' as img;
 import 'package:onnxruntime_v2/onnxruntime_v2.dart';
@@ -21,8 +20,8 @@ void main() async {
   //final modelPath = r"E:\dnn\BiRefNet_lite-ONNX\model_fp16.onnx";
   final modelPath = r"E:\dnn\hispark-modelzoo-yolov8s-obb\yolov8s-obb.onnx";
   //final inputImagePath = r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png";
-  //final inputImagePath = r"E:\temp\export_1024x1024.png";
-  final inputImagePath = r"test/.output/output_1786522445634.png";
+  final inputImagePath = r"E:\temp\export_1024x1024.png";
+  //final inputImagePath = r"test/.output/output_1786522445634.png";
   final modelBytes = File(modelPath).readAsBytesSync();
   final sessionOptions = OrtSessionOptions();
   // 🚀 NEW: Automatically use GPU acceleration if available!
@@ -47,40 +46,13 @@ void main() async {
     '$originalWidth x $originalHeight',
   );
 
-  // --------------------------------------------------
-  // 2. 转 RGB
-  // --------------------------------------------------
-
-  final rgbImage = original.convert(numChannels: 3);
-
-  // --------------------------------------------------
-  // 3. Resize 到 1024 x 1024
-  // --------------------------------------------------
-  final resized = BiRefNetHelper.resizeImage(rgbImage, inputSize, inputSize);
-  await img.encodePngFile(
-    'test/.output/output_resized_$timestamp.png',
-    resized,
-  ); // Save the resized as PNG
-
-  // --------------------------------------------------
-  // 4. RGB -> Float32 NCHW
-  //
-  // [1, 3, 1024, 1024]
-  //
-  // RRRRR...
-  // GGGGG...
-  // BBBBB...
-  // --------------------------------------------------
-
-  // 1024*1024*3=3,145,728
-  final inputData = BiRefNetHelper.imageToFloat32NCHW(resized);
-  print(
-    'Input tensor: '
-    '[1, 3, $inputSize, $inputSize]',
-  );
+  final preprocess = YoloHelper.preprocessImage(original, inputSize);
 
   final shape = [1, 3, inputSize, inputSize];
-  final inputOrt = OrtValueTensor.createTensorWithDataList(inputData, shape);
+  final inputOrt = OrtValueTensor.createTensorWithDataList(
+    preprocess.input,
+    shape,
+  );
   //input_image / images
   final inputs = {session.inputNames.first: inputOrt};
   final runOptions = OrtRunOptions();
@@ -97,7 +69,7 @@ void main() async {
   final output = outputs?.firstOrNull;
 
   if (output == null) {
-    throw Exception('BiRefNet 输出为空');
+    throw Exception('Yolo 输出为空');
   }
   //print(out[model.outputNames.first]!.asFloatList());
   //[output_image] / [output0]
@@ -118,24 +90,18 @@ void main() async {
   final outputValue = output.value;
 
   print('Output type: ${outputValue.runtimeType}');
-
-  final scale =
-      inputSize /
-      (originalWidth > originalHeight ? originalWidth : originalHeight);
-
-  final padX = (inputSize - resized.width) / 2;
-  final padY = (inputSize - resized.height) / 2;
   final result = YoloHelper.decodeObb(
     outputValue,
-    padX: padX,
-    padY: padY,
-    scale: scale,
+    padX: preprocess.padX,
+    padY: preprocess.padY,
+    scale: preprocess.scale,
   );
   print(
     result
         .map((e) => "${e.cx},${e.cy},${e.width},${e.height},${e.angle}")
         .join(","),
   );
+  print('result : ${result.length}');
 
   outputs?.forEach((element) {
     //print(element?.value);
