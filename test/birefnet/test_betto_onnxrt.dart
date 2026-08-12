@@ -1,8 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:betto_onnxrt/betto_onnxrt.dart';
-import 'package:flutter_onnx_demo/src/ONNXHelper.dart';
+import 'package:flutter_onnx_demo/src/birefnet_helper.dart';
 import 'package:image/image.dart' as img;
 
 ///
@@ -38,7 +37,7 @@ void main() async {
   // --------------------------------------------------
 
   // 1024*1024*3=3,145,728
-  final inputData = ONNXHelper.imageToFloat32NCHW(image);
+  final inputData = BiRefNetHelper.imageToFloat32NCHW(image);
 
   // 3. Build input tensors and run inference.
   final inputIds = OnnxTensor.fromFloat32([1, 3, 1024, 1024], inputData);

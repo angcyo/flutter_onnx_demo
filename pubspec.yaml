@@ -44,6 +44,9 @@ dependencies:
   # https://pub.dev/packages/betto_onnxrt
   betto_onnxrt: ^0.1.0-dev.1
 
+  # https://pub.dev/packages/onnxruntime_v2
+  onnxruntime_v2: ^1.23.2+2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

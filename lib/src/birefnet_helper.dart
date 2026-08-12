@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
@@ -6,8 +7,16 @@ import 'package:image/image.dart' as img;
 /// @author <a href="mailto:angcyo@126.com">angcyo</a>
 /// @date 2026/08/11
 ///
-class ONNXHelper {
-  ONNXHelper._();
+/// https://huggingface.co/ZhengPeng7/BiRefNet_lite
+///
+/// https://github.com/ZhengPeng7/BiRefNet/releases/tag/v1
+///
+/// https://huggingface.co/onnx-community/BiRefNet_lite-ONNX
+///
+class BiRefNetHelper {
+  BiRefNetHelper._();
+
+  //MARK: - input
 
   /// RGB Image -> Float32 NCHW
   /// 1024*1024*3=3,145,728
@@ -55,7 +64,22 @@ class ONNXHelper {
     return result;
   }
 
-  /// 从 ONNX output 中提取 Float32
+  //MARK: - output
+
+  /// 从 ONNX output 中提取 Float32, 对应 logits 的值
+  ///
+  /// ```
+  /// 输出的是前景/背景的置信度 logits
+  ///  logit
+  ///   ↓
+  ///  sigmoid
+  ///   ↓
+  ///  0.0 ~ 1.0
+  ///   ↓
+  ///  ×255
+  ///   ↓
+  ///  Alpha
+  /// ```
   static Float32List extractOutput(dynamic value, int inputSize) {
     /*
      * 不同版本的 onnxruntime Dart binding
@@ -98,7 +122,30 @@ class ONNXHelper {
     return result;
   }
 
+  /// 将 logits 转换成 Sigmoid
+  /// logits -> 0~1
+  static Float32List sigmoid(Float32List logits, int inputSize) {
+    final mask = Float32List(inputSize * inputSize);
+    for (int i = 0; i < mask.length; i++) {
+      final x = logits[i];
+
+      // sigmoid
+      final value = 1.0 / (1.0 + math.exp(-x));
+
+      mask[i] = value;
+    }
+    return mask;
+  }
+
   /// Mask Float32 -> 灰度图片
+  /// ```
+  /// final resizedMask = img.copyResize(
+  ///   maskImage,
+  ///   width: originalWidth,
+  ///   height: originalHeight,
+  ///   interpolation: img.Interpolation.linear,
+  /// );
+  /// ```
   static img.Image maskToImage(Float32List mask, int width, int height) {
     final result = img.Image(width: width, height: height, numChannels: 1);
 
@@ -141,5 +188,24 @@ class ONNXHelper {
     }
 
     return result;
+  }
+
+  //MARK: - api
+
+  /// 调整图片大小
+  static img.Image resizeImage(
+    img.Image original,
+    int width,
+    int height, {
+    bool? maintainAspect,
+    img.Interpolation interpolation = .linear,
+  }) {
+    return img.copyResize(
+      original,
+      width: width,
+      height: height,
+      maintainAspect: maintainAspect,
+      interpolation: img.Interpolation.linear,
+    );
   }
 }
