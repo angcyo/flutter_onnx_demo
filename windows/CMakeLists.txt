@@ -10,6 +10,13 @@ set(BINARY_NAME "flutter_onnx_demo")
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
 
+# flutter_onnxruntime_plugin.cpp(718,1): error C2220: 以下警告被视为错误
+# 强制 MSVC 编译器对所有源文件（包括引用的插件）统一采用 UTF-8 编码解析
+if (MSVC)
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+endif()
+
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(IS_MULTICONFIG)
