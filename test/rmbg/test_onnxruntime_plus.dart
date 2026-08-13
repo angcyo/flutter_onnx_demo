@@ -8,7 +8,7 @@ import 'package:onnxruntime_plus/onnxruntime_plus.dart';
 /// @author <a href="mailto:angcyo@126.com">angcyo</a>
 /// @date 2026/08/11
 ///
-/// # 2026-8-11
+/// # 2026-8-13
 /// ```
 /// Succeed
 /// ```
@@ -17,12 +17,19 @@ void main() async {
 
   //模型输入大小
   final inputSize = 1024;
-  final modelPath = r"E:\dnn\BiRefNet_lite-ONNX\model_fp16.onnx";
+  //final modelPath = r"E:\dnn\RMBG-1.4\model_fp16.onnx";
+  final modelPath = r"E:\dnn\RMBG-1.4\model.onnx";
+  //final modelPath = r"E:\dnn\RMBG-1.4\model_quantized.onnx";
   final inputImagePath = r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png";
   //final inputImagePath = r"E:\temp\export_1024x1024.png";
   final modelBytes = File(modelPath).readAsBytesSync();
   final sessionOptions = OrtSessionOptions();
   final session = OrtSession.fromBuffer(modelBytes, sessionOptions);
+
+  //RMBG input names: [input]
+  //RMBG output names: [output]
+  print('RMBG input names: ${session.inputNames}');
+  print('RMBG output names: ${session.outputNames}');
 
   final bytes = File(inputImagePath).readAsBytesSync();
   // 解码 PNG/JPEG/WebP 等
@@ -56,18 +63,34 @@ void main() async {
     resized,
   ); // Save the resized as PNG
 
-  // --------------------------------------------------
-  // 4. RGB -> Float32 NCHW
+  // ------------------------------------------------------------
+  // 2. RMBG 输入
   //
   // [1, 3, 1024, 1024]
   //
-  // RRRRR...
-  // GGGGG...
-  // BBBBB...
-  // --------------------------------------------------
+  // RGB
+  // Normalize:
+  //
+  // x = pixel / 255
+  // x = (x - 0.5) / 1.0
+  //
+  // 即：
+  //
+  // R = pixel / 255 - 0.5
+  // G = pixel / 255 - 0.5
+  // B = pixel / 255 - 0.5
+  // ------------------------------------------------------------
 
   // 1024*1024*3=3,145,728
-  final inputData = BiRefNetHelper.imageToFloat32NCHW(resized);
+  final inputData = BiRefNetHelper.imageToFloat32NCHW(
+    resized,
+    meanB: 0.5,
+    meanG: 0.5,
+    meanR: 0.5,
+    stdB: 1,
+    stdG: 1,
+    stdR: 1,
+  );
   print(
     'Input tensor: '
     '[1, 3, $inputSize, $inputSize]',
@@ -118,7 +141,8 @@ void main() async {
   // --------------------------------------------------
   final logits = BiRefNetHelper.extractOutput(outputValue, inputSize);
   print('Output values: ${logits.length}');
-  final mask = BiRefNetHelper.sigmoid(logits, inputSize);
+  //final mask = BiRefNetHelper.sigmoid(logits, inputSize);
+  final mask = logits;
   // --------------------------------------------------
   // 12. Resize mask 到原图尺寸
   // --------------------------------------------------

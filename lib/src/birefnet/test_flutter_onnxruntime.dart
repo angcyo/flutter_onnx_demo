@@ -35,7 +35,7 @@ Future<Uint8List?> testFlutterOnnxruntimeMain() async {
       : r"E:\dnn\BiRefNet_lite-ONNX\model_fp16.onnx";
   final inputImagePath = isMobile
       ? "assets/input.png"
-      : r"E:\temp\export_1024x1024.png";
+      : r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png"  /*r"E:\temp\export_1024x1024.png"*/;
   //final inputImagePath = r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png";
 
   final inputImageBytes = isMobile

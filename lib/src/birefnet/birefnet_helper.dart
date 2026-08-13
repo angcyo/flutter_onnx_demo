@@ -19,24 +19,35 @@ class BiRefNetHelper {
   //MARK: - input
 
   /// RGB Image -> Float32 NCHW
+  /// ```
+  /// //Mean Centering（均值中心化）
+  /// final meanR = 0.485;
+  /// final meanG = 0.456;
+  /// final meanB = 0.406;
+  ///
+  /// //Standardization（标准化）
+  /// final stdR = 0.229;
+  /// final stdG = 0.224;
+  /// final stdB = 0.225;
+  /// ```
   /// 1024*1024*3=3,145,728
-  static Float32List imageToFloat32NCHW(img.Image image) {
+  static Float32List imageToFloat32NCHW(
+    img.Image image, {
+    //Mean Centering（均值中心化）
+    double meanR = 0.485,
+    double meanG = 0.456,
+    double meanB = 0.406,
+    //Standardization（标准化）
+    double stdR = 0.229,
+    double stdG = 0.224,
+    double stdB = 0.225,
+  }) {
     final width = image.width;
     final height = image.height;
 
     final planeSize = width * height;
 
     final result = Float32List(3 * planeSize);
-
-    //Mean Centering（均值中心化）
-    const meanR = 0.485;
-    const meanG = 0.456;
-    const meanB = 0.406;
-
-    //Standardization（标准化）
-    const stdR = 0.229;
-    const stdG = 0.224;
-    const stdB = 0.225;
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
