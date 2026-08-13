@@ -20,7 +20,8 @@ void main() async {
   //final modelPath = r"E:\dnn\RMBG-1.4\model_fp16.onnx";
   final modelPath = r"E:\dnn\RMBG-1.4\model.onnx";
   //final modelPath = r"E:\dnn\RMBG-1.4\model_quantized.onnx";
-  final inputImagePath = r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png";
+  final inputImagePath = r"E:\temp\contours.jpg";
+  //final inputImagePath = r"E:\temp\4d8deaf7-ba4f-4b59-a522-f76f873924f8.png";
   //final inputImagePath = r"E:\temp\export_1024x1024.png";
   final modelBytes = File(modelPath).readAsBytesSync();
   final sessionOptions = OrtSessionOptions();
@@ -59,7 +60,7 @@ void main() async {
   // --------------------------------------------------
   final resized = BiRefNetHelper.resizeImage(rgbImage, inputSize, inputSize);
   await img.encodePngFile(
-    'test/.output/output_resized_$timestamp.png',
+    'test/.output/rmbg_output_resized_$timestamp.png',
     resized,
   ); // Save the resized as PNG
 
@@ -157,7 +158,7 @@ void main() async {
   // 13. 应用 Alpha
   // --------------------------------------------------
   final result = BiRefNetHelper.applyMask(original, resizedMask);
-  final outputPath = 'test/.output/output_$timestamp.png';
+  final outputPath = 'test/.output/rmbg_output_$timestamp.png';
   await img.encodePngFile(outputPath, result); // Save the result as PNG
   print('Save result to: $outputPath');
 
