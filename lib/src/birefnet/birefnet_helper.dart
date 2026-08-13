@@ -164,9 +164,17 @@ class BiRefNetHelper {
       for (int x = 0; x < width; x++) {
         final index = y * width + x;
 
-        final value = mask[index].clamp(0.0, 1.0);
+        double value = mask[index];
+
+        // 有些 RMBG ONNX 导出版本已经输出 0~1。
+        // 如果输出范围明显大于 1，则进行归一化。
+        if (value > 1.0) {
+          value /= 255.0;
+        }
+        value = value.clamp(0.0, 1.0);
 
         final gray = (value * 255.0).round();
+        //final gray = value < 0.1 ? 0 : 255;
 
         result.setPixelRgb(x, y, gray, gray, gray);
       }

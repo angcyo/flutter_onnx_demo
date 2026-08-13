@@ -148,6 +148,7 @@ void main() async {
   // 12. Resize mask 到原图尺寸
   // --------------------------------------------------
   final maskImage = BiRefNetHelper.maskToImage(mask, inputSize, inputSize);
+  //await img.encodePngFile('test/.output/rmbg_output_mask_$timestamp.png', maskImage);
   final resizedMask = BiRefNetHelper.resizeImage(
     maskImage,
     originalWidth,
