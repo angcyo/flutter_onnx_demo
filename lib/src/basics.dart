@@ -76,3 +76,13 @@ Future<String> cacheFilePath(String fileName) async {
   }
   return p.join(folder.path, fileName);
 }
+
+/// 耗时统计ms
+Future<int> wrapTimeCost<T>(Future<T> Function() future) async {
+  final startTime = DateTime.now();
+  final result = await future();
+  result;
+  final endTime = DateTime.now();
+  //l.d('${tag ?? ''} timeCost: ${endTime.difference(startTime).inMilliseconds}ms');
+  return endTime.difference(startTime).inMilliseconds;
+}

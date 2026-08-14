@@ -7,6 +7,8 @@ import 'package:flutter_onnx_demo/src/birefnet/test_flutter_onnxruntime.dart';
 import 'package:flutter_onnx_demo/src/birefnet/test_onnxruntime_plus.dart';
 import 'package:flutter_onnx_demo/src/birefnet/test_onnxruntime_v2.dart';
 
+import 'src/basics.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -65,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   ui.Image? _resultImage;
   Uint8List? _resultImageBytes;
+  int? _timeCost;
 
   void _incrementCounter() {
     setState(() {
@@ -93,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text("${widget.title} ${_timeCost ?? 0}ms"),
       ),
       backgroundColor: _resultImageBytes == null ? null : Colors.white38,
       body: Center(
@@ -130,45 +133,53 @@ class _MyHomePageState extends State<MyHomePage> {
         spacing: 10,
         children: <Widget>[
           FloatingActionButton(
-            onPressed: () {
+            onPressed: () async {
               //test
-              testFlutterOnnxruntimeMain().then((bytes) {
-                //_resultImage = image;
-                _resultImageBytes = bytes;
-                setState(() {});
+              _timeCost = await wrapTimeCost(() async {
+                return testFlutterOnnxruntimeMain().then((bytes) {
+                  //_resultImage = image;
+                  _resultImageBytes = bytes;
+                  setState(() {});
+                });
               });
             },
             child: const Text("ORT-Flutter"),
           ),
           FloatingActionButton(
-            onPressed: () {
+            onPressed: () async {
               //test
-              testOnnxruntimePlusMain().then((bytes) {
-                //_resultImage = image;
-                _resultImageBytes = bytes;
-                setState(() {});
+              _timeCost = await wrapTimeCost(() async {
+                return testOnnxruntimePlusMain().then((bytes) {
+                  //_resultImage = image;
+                  _resultImageBytes = bytes;
+                  setState(() {});
+                });
               });
             },
             child: const Text("ORT-Plus"),
           ),
           FloatingActionButton(
-            onPressed: () {
+            onPressed: () async {
               //test
-              testOnnxruntimeV2Main().then((bytes) {
-                //_resultImage = image;
-                _resultImageBytes = bytes;
-                setState(() {});
+              _timeCost = await wrapTimeCost(() async {
+                return testOnnxruntimeV2Main().then((bytes) {
+                  //_resultImage = image;
+                  _resultImageBytes = bytes;
+                  setState(() {});
+                });
               });
             },
             child: const Text("ORT-V2"),
           ),
           FloatingActionButton(
-            onPressed: () {
+            onPressed: () async {
               //test
-              testDortMain().then((bytes) {
-                //_resultImage = image;
-                _resultImageBytes = bytes;
-                setState(() {});
+              _timeCost = await wrapTimeCost(() async {
+                return testDortMain().then((bytes) {
+                  //_resultImage = image;
+                  _resultImageBytes = bytes;
+                  setState(() {});
+                });
               });
             },
             child: const Text("ORT-Dort"),
